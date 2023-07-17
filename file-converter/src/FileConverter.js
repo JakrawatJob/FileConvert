@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css'; // เรียกใช้ไฟล์ CSS
+import './App.css'; 
 
 const FileConverter = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -9,16 +9,18 @@ const FileConverter = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setSelectedFile(file);
+    if(file){
+      setSelectedFile(file);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const fileData = reader.result;
-      const blob = new Blob([fileData], { type: file.type });
-      const url = URL.createObjectURL(blob);
-      setExampleDocumentUrl(url);
-    };
-    reader.readAsArrayBuffer(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const fileData = reader.result;
+        const blob = new Blob([fileData], { type: file.type });
+        const url = URL.createObjectURL(blob);
+        setExampleDocumentUrl(url);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   const convertToBase64 = () => {
@@ -35,7 +37,7 @@ const FileConverter = () => {
 
   const getFileType = (base64Data) => {
     const basestring = base64Data.substring(0, 100);
-    console.log(basestring);
+    //console.log(basestring);
     if (basestring.includes('JVBERi')) {
       setTypeFile('PDF');
     } else if (basestring.includes('iVBOR')) {
@@ -95,18 +97,6 @@ const FileConverter = () => {
     link.click();
   };
 
-  function handleDownloadPDF() {
-    const pageNumber = document.getElementById('pageNumber').value;
-
-    if (pageNumber < 1) {
-      alert('Invalid page number. Please enter a number greater than or equal to 1.');
-      return;
-    }
-    const urlWithPageNumber = `${exampleDocumentUrl}?page=${pageNumber}`;
-    console.log(urlWithPageNumber);
-    downloadFile(urlWithPageNumber);
-  }
-
   return (
     <div className="container">
       <h2>File Converter</h2>
@@ -126,13 +116,6 @@ const FileConverter = () => {
             <embed src={exampleDocumentUrl} type="application/pdf" width="100%" height="400px" />
           </div>
           <p>File Type: {typeFile}</p>
-          {typeFile === 'PDF' && (
-            <div className="input-container">
-              <input type="number" id="pageNumber" min="1" />
-              <input type="text" value={exampleDocumentUrl} onChange={(e) => setExampleDocumentUrl(e.target.value)} />
-              <button className="button" onClick={handleDownloadPDF}>Download Split PDF</button>
-            </div>
-          )}
           <button className="button" onClick={() => downloadFile(exampleDocumentUrl)}>Download File</button>
         </div>
       )}
